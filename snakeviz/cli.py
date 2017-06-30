@@ -12,6 +12,7 @@ import sys
 import threading
 import webbrowser
 from pstats import Stats
+import requests
 
 try:
     from urllib.parse import quote_plus
@@ -30,8 +31,8 @@ def random_ports(port, n):
     """
     for i in range(min(5, n)):
         yield port + i
-    for i in range(n-5):
-        yield max(1, port + random.randint(-2*n, 2*n))
+    for i in range(n - 5):
+        yield max(1, port + random.randint(-2 * n, 2 * n))
 
 
 def main(argv=sys.argv[1:]):
@@ -46,43 +47,11 @@ def main(argv=sys.argv[1:]):
                            'free port will be selected automatically '
                            '(default: %default)')
 
-    parser.add_option('-b', '--browser', metavar='PATH',
-                      help='name of webbrowser to launch as described in '
-                           'the documentation of Python\'s webbrowser module: '
-                           'https://docs.python.org/3/library/webbrowser.html')
-
-    parser.add_option('-s', '--server', action="store_true", dest="server",
-                      default=False,
-                      help='start SnakeViz in server-only mode--'
-                           'no attempt will be to open a browser')
-
     options, args = parser.parse_args(argv)
 
-    if len(args) != 1:
-        parser.error('please provide the path to a profiler output file to '
-                     'open')
-
-    if options.browser and options.server:
-        parser.error("options --browser and --server are mutually exclusive")
-
-    filename = os.path.abspath(args[0])
-    if not os.path.exists(filename):
-        parser.error('the file %s does not exist' % filename)
-
-    try:
-        open(filename)
-    except IOError as e:
-        parser.error('the file %s could not be opened: %s'
-                     % (filename, str(e)))
-
-    try:
-        Stats(filename)
-    except:
-        parser.error(('the file %s is not a valid profile. ' % filename) +
-                     'Generate profiles using: \n\n'
-                     '\tpython -m cProfile -o my_program.prof my_program.py\n')
-
-    filename = quote_plus(filename)
+    # if len(args) != 1 and not options.url:
+    #    parser.error('please provide the path to a profiler output file to '
+    #                 'open')
 
     hostname = options.hostname
     port = options.port
@@ -94,7 +63,7 @@ def main(argv=sys.argv[1:]):
     # Go ahead and import the tornado app and start it; we do an inline import
     # here to avoid the extra overhead when just running the cli for --help and
     # the like
-    from .main import app
+    from snakeviz.main import app
     import tornado.ioloop
 
     # As seen in IPython:
@@ -113,22 +82,22 @@ def main(argv=sys.argv[1:]):
         print('No available port found.')
         return 1
 
-    url = "http://{0}:{1}/snakeviz/{2}".format(hostname, port, filename)
+    url = "http://{0}:{1}/snakeviz/".format(hostname, port)
     print(('snakeviz web server started on %s:%d; enter Ctrl-C to exit' %
            (hostname, port)))
     print(url)
 
-    if not options.server:
-        try:
-            browser = webbrowser.get(options.browser)
-        except webbrowser.Error as e:
-            parser.error('no web browser found: %s' % e)
-
-        # Launch the browser in a separate thread to avoid blocking the
-        # ioloop from starting
-        def bt():
-            browser.open(url, new=2)
-        threading.Thread(target=bt).start()
+#     if not options.server:
+#         try:
+#             browser = webbrowser.get(options.browser)
+#         except webbrowser.Error as e:
+#             parser.error('no web browser found: %s' % e)
+#
+#         # Launch the browser in a separate thread to avoid blocking the
+#         # ioloop from starting
+#         def bt():
+#             browser.open(url, new=2)
+#         threading.Thread(target=bt).start()
 
     try:
         tornado.ioloop.IOLoop.instance().start()
@@ -139,3 +108,7 @@ def main(argv=sys.argv[1:]):
         print('\nBye!')
 
     return 0
+
+
+if __name__ == '__main__':
+    main()

@@ -21,8 +21,8 @@
     <!-- style select -->
     <label id='sv-style-label'>Style:
       <select name="sv-style" id="sv-style-select">
-        <option value="sunburst" selected>Sunburst</option>
-        <option value="icicle">Icicle</option>
+        <option value="sunburst">Sunburst</option>
+        <option value="icicle" selected>Icicle</option>
       </select>
     </label>
 
@@ -38,8 +38,8 @@
     <!-- cutoff select -->
     <label id='sv-cutoff-label'>Cutoff:
       <select name="sv-cutoff" id="sv-cutoff-select">
-        <option value="0.001" selected>1 &frasl; 1000</option>
-        <option value="0.01">1 &frasl; 100</option>
+        <option value="0.001" >1 &frasl; 1000</option>
+        <option value="0.01" selected>1 &frasl; 100</option>
         <option value="0">None</option>
       </select>
     </label>
@@ -114,7 +114,7 @@
             {'title': 'percall', 'type': 'num', 'searchable': 'false'},
             {'title': 'filename:lineno(function)'}
           ],
-          'order': [1, 'desc'],
+          'order': [3, 'desc'],
           'paging': false
         });
       });
